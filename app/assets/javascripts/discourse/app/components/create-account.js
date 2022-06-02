@@ -43,7 +43,7 @@ export default Component.extend({
       }
     }
 
-    $(this.element).on("keydown.discourse-create-account", (e) => {
+    this.element.addEventListener("keydown", (e) => {
       if (!this.disabled && e.key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
@@ -52,13 +52,11 @@ export default Component.extend({
       }
     });
 
-    $(this.element).on("click.dropdown-user-field-label", "[for]", (event) => {
-      const $element = $(event.target);
-      const $target = $(`#${$element.attr("for")}`);
-
-      if ($target.is(".select-kit")) {
+    this.element.addEventListener("click", (event) => {
+      const target = document.getElementById(event.target.getAttribute("for"));
+      if (target.classList.contains("select-kit")) {
         event.preventDefault();
-        $target.find(".select-kit-header").trigger("click");
+        target.querySelector(".select-kit-header").click();
       }
     });
   },
@@ -66,8 +64,8 @@ export default Component.extend({
   willDestroyElement() {
     this._super(...arguments);
 
-    $(this.element).off("keydown.discourse-create-account");
-    $(this.element).off("click.dropdown-user-field-label");
+    this.element.removeEventListener("keydown");
+    this.element.removeEventListener("click");
 
     let userTextFields = document.getElementsByClassName("user-fields")[0];
 
