@@ -701,7 +701,7 @@ acceptance("Composer", function (needs) {
 
       const composerActions = selectKit(".composer-actions");
       await composerActions.expand();
-      await composerActions.selectRowByValue("reply_as_private_message");
+      await composerActions.selectRowByValue("toggle_whisper");
 
       assert.ok(!exists(".modal-body"), "abandon popup shouldn't come");
 
