@@ -13,17 +13,21 @@ export default Controller.extend(ModalFunctionality, {
 
   emoji: "mega",
   description: null,
-  statusIsSet: notEmpty("description"),
   showDeleteButton: false,
   emojiPickerIsActive: false,
+  statusIsSet: notEmpty("description"),
 
   onShow() {
-    if (this.currentUser.status) {
+    const status = this.currentUser.status;
+    if (status) {
       this.setProperties({
-        emoji: this.currentUser.status.emoji || "mega",
-        description: this.currentUser.status.description,
+        emoji: status.emoji || "mega",
+        description: status.description,
         showDeleteButton: true,
+        emojiPickerIsActive: false,
       });
+    } else {
+      this._resetModal();
     }
   },
 
@@ -36,10 +40,7 @@ export default Controller.extend(ModalFunctionality, {
   delete() {
     this.userStatusService
       .clear()
-      .then(() => {
-        this._resetModal();
-        this.send("closeModal");
-      })
+      .then(() => this.send("closeModal"))
       .catch((e) => this._handleError(e));
   },
 
@@ -82,8 +83,8 @@ export default Controller.extend(ModalFunctionality, {
   _resetModal() {
     this.setProperties({
       description: null,
-      emoji: null,
-      showDeleteButton: true,
+      emoji: "mega",
+      showDeleteButton: false,
       emojiPickerIsActive: false,
     });
   },

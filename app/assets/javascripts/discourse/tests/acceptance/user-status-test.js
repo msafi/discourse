@@ -23,6 +23,7 @@ async function pickEmoji(emoji) {
 acceptance("User Status", function (needs) {
   const userStatus = "off to dentist";
   const userStatusEmoji = "tooth";
+  const defaultStatusEmoji = "mega";
   const userId = 1;
 
   needs.user({ id: userId });
@@ -51,7 +52,7 @@ acceptance("User Status", function (needs) {
     assert.notOk(exists("div.quick-access-panel li.user-status"));
   });
 
-  test("shows the user status button on the menu when disabled in settings", async function (assert) {
+  test("shows the user status button on the menu when enabled in settings", async function (assert) {
     this.siteSettings.enable_user_status = true;
 
     await visit("/");
@@ -98,9 +99,30 @@ acceptance("User Status", function (needs) {
     );
   });
 
+  test("shows user status on the user status modal", async function (assert) {
+    this.siteSettings.enable_user_status = true;
+
+    updateCurrentUser({
+      status: { description: userStatus, emoji: userStatusEmoji },
+    });
+
+    await visit("/");
+    await openUserStatusModal();
+
+    assert.equal(
+      query(`.btn-emoji img.emoji`).title,
+      userStatusEmoji,
+      "status emoji is shown"
+    );
+    assert.equal(
+      query(".user-status-description").value,
+      userStatus,
+      "status description is shown"
+    );
+  });
+
   test("emoji picking", async function (assert) {
     this.siteSettings.enable_user_status = true;
-    const defaultStatusEmoji = "mega";
 
     await visit("/");
     await openUserStatusModal();
@@ -189,6 +211,32 @@ acceptance("User Status", function (needs) {
     assert.notOk(exists(".header-dropdown-toggle .user-status-background"));
   });
 
+  test("shows actual status on the modal after canceling the modal", async function (assert) {
+    this.siteSettings.enable_user_status = true;
+
+    updateCurrentUser({
+      status: { description: userStatus, emoji: userStatusEmoji },
+    });
+
+    await visit("/");
+    await openUserStatusModal();
+    await fillIn(".user-status-description", "another status");
+    await pickEmoji("cold_face"); // another emoji
+    await click(".d-modal-cancel");
+    await openUserStatusModal();
+
+    assert.equal(
+      query(`.btn-emoji img.emoji`).title,
+      userStatusEmoji,
+      "the actual status emoji is shown"
+    );
+    assert.equal(
+      query(".user-status-description").value,
+      userStatus,
+      "the actual status description is shown"
+    );
+  });
+
   test("shows the trash button when editing status that was set before", async function (assert) {
     this.siteSettings.enable_user_status = true;
     updateCurrentUser({ status: { description: userStatus } });
@@ -207,5 +255,29 @@ acceptance("User Status", function (needs) {
     await openUserStatusModal();
 
     assert.notOk(exists(".btn.delete-status"));
+  });
+
+  test("shows empty modal after deleting the status", async function (assert) {
+    this.siteSettings.enable_user_status = true;
+
+    updateCurrentUser({
+      status: { description: userStatus, emoji: userStatusEmoji },
+    });
+
+    await visit("/");
+    await openUserStatusModal();
+    await click(".btn.delete-status");
+    await openUserStatusModal();
+
+    assert.equal(
+      query(`.btn-emoji img.emoji`).title,
+      defaultStatusEmoji,
+      "the default status emoji is shown"
+    );
+    assert.equal(
+      query(".user-status-description").value,
+      "",
+      "no status description is shown"
+    );
   });
 });
