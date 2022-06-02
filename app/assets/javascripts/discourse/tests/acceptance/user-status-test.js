@@ -31,6 +31,7 @@ acceptance("User Status", function (needs) {
     server.put("/user-status.json", () => {
       publishToMessageBus(`/user-status/${userId}`, {
         description: userStatus,
+        emoji: userStatusEmoji,
       });
       return helper.response({ success: true });
     });
