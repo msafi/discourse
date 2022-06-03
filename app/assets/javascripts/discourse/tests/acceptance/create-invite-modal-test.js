@@ -59,7 +59,7 @@ acceptance("Invites - Create & Edit Invite Modal", function (needs) {
 
     assert.ok(!exists("tbody tr"), "does not show invite before saving");
 
-    await click(".btn-primary");
+    await click(".btn-primary"); // save
 
     assert.strictEqual(
       count("tbody tr"),

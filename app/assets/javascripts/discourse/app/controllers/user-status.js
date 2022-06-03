@@ -1,7 +1,6 @@
 import Controller from "@ember/controller";
 import ModalFunctionality from "discourse/mixins/modal-functionality";
 import { action } from "@ember/object";
-import { notEmpty } from "@ember/object/computed";
 import { inject as service } from "@ember/service";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import bootbox from "bootbox";
@@ -15,7 +14,6 @@ export default Controller.extend(ModalFunctionality, {
   description: null,
   showDeleteButton: false,
   emojiPickerIsActive: false,
-  statusIsSet: notEmpty("description"),
 
   onShow() {
     const status = this.currentUser.status;
@@ -36,6 +34,11 @@ export default Controller.extend(ModalFunctionality, {
     return emojiUnescape(`:${emoji}:`);
   },
 
+  @discourseComputed("emoji", "description")
+  statusIsSet(emoji, description) {
+    return !!emoji && !!description;
+  },
+
   @action
   delete() {
     this.userStatusService
@@ -46,15 +49,13 @@ export default Controller.extend(ModalFunctionality, {
 
   @action
   saveAndClose() {
-    if (this.description) {
-      const status = { description: this.description, emoji: this.emoji };
-      this.userStatusService
-        .set(status)
-        .then(() => {
-          this.send("closeModal");
-        })
-        .catch((e) => this._handleError(e));
-    }
+    const status = { description: this.description, emoji: this.emoji };
+    this.userStatusService
+      .set(status)
+      .then(() => {
+        this.send("closeModal");
+      })
+      .catch((e) => this._handleError(e));
   },
 
   @action
