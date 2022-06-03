@@ -5,7 +5,7 @@ import {
   query,
   updateCurrentUser,
 } from "discourse/tests/helpers/qunit-helpers";
-import { click, fillIn, visit } from "@ember/test-helpers";
+import { click, fillIn, triggerKeyEvent, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 
 async function openUserStatusModal() {
@@ -23,7 +23,6 @@ async function pickEmoji(emoji) {
 acceptance("User Status", function (needs) {
   const userStatus = "off to dentist";
   const userStatusEmoji = "tooth";
-  const defaultStatusEmoji = "mega";
   const userId = 1;
 
   needs.user({ id: userId });
@@ -127,10 +126,7 @@ acceptance("User Status", function (needs) {
     await visit("/");
     await openUserStatusModal();
 
-    assert.ok(
-      exists(`.btn-emoji img.emoji[title=${defaultStatusEmoji}]`),
-      "default status emoji is shown"
-    );
+    assert.ok(exists(`.d-icon-discourse-emojis`), "empty status icon is shown");
 
     await click(".btn-emoji");
     assert.ok(exists(".emoji-picker.opened"), "emoji picker is opened");
@@ -211,6 +207,24 @@ acceptance("User Status", function (needs) {
     assert.notOk(exists(".header-dropdown-toggle .user-status-background"));
   });
 
+  test("sets default status emoji automatically after user started inputting  status description", async function (assert) {
+    this.siteSettings.enable_user_status = true;
+    const defaultStatusEmoji = "mega";
+
+    await visit("/");
+    await openUserStatusModal();
+    await triggerKeyEvent(
+      ".user-status-description",
+      "keydown",
+      "a".charCodeAt(0)
+    );
+
+    assert.ok(
+      exists(`.btn-emoji img.emoji[title=${defaultStatusEmoji}]`),
+      "default status emoji is shown"
+    );
+  });
+
   test("shows actual status on the modal after canceling the modal", async function (assert) {
     this.siteSettings.enable_user_status = true;
 
@@ -269,11 +283,7 @@ acceptance("User Status", function (needs) {
     await click(".btn.delete-status");
     await openUserStatusModal();
 
-    assert.equal(
-      query(`.btn-emoji img.emoji`).title,
-      defaultStatusEmoji,
-      "the default status emoji is shown"
-    );
+    assert.ok(exists(`.d-icon-discourse-emojis`), "empty status icon is shown");
     assert.equal(
       query(".user-status-description").value,
       "",

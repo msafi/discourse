@@ -11,7 +11,7 @@ import discourseComputed from "discourse-common/utils/decorators";
 export default Controller.extend(ModalFunctionality, {
   userStatusService: service("user-status"),
 
-  emoji: "mega",
+  emoji: null,
   description: null,
   showDeleteButton: false,
   emojiPickerIsActive: false,
@@ -21,7 +21,7 @@ export default Controller.extend(ModalFunctionality, {
     const status = this.currentUser.status;
     if (status) {
       this.setProperties({
-        emoji: status.emoji || "mega",
+        emoji: status.emoji,
         description: status.description,
         showDeleteButton: true,
         emojiPickerIsActive: false,
@@ -72,6 +72,13 @@ export default Controller.extend(ModalFunctionality, {
     }
   },
 
+  @action
+  setDefaultEmoji() {
+    if (!this.emoji) {
+      this.set("emoji", "mega");
+    }
+  },
+
   _handleError(e) {
     if (typeof e === "string") {
       bootbox.alert(e);
@@ -83,7 +90,7 @@ export default Controller.extend(ModalFunctionality, {
   _resetModal() {
     this.setProperties({
       description: null,
-      emoji: "mega",
+      emoji: null,
       showDeleteButton: false,
       emojiPickerIsActive: false,
     });
