@@ -128,23 +128,6 @@ export default DropdownSelectBoxComponent.extend({
     }
 
     if (
-      this.action !== CREATE_TOPIC &&
-      this.action !== CREATE_SHARED_DRAFT &&
-      !(this.action === REPLY && this.topic && this.topic.isPrivateMessage) &&
-      !this.isEditing &&
-      _topicSnapshot
-    ) {
-      items.push({
-        name: I18n.t("composer.composer_actions.reply_as_new_topic.label"),
-        description: I18n.t(
-          "composer.composer_actions.reply_as_new_topic.desc"
-        ),
-        icon: "plus",
-        id: "reply_as_new_topic",
-      });
-    }
-
-    if (
       (this.action !== REPLY && _postSnapshot) ||
       (this.action === REPLY &&
         _postSnapshot &&
