@@ -54,7 +54,7 @@ export default Component.extend({
 
     this.element.addEventListener("click", (event) => {
       const target = document.getElementById(event.target.getAttribute("for"));
-      if (target.classList.contains("select-kit")) {
+      if (target?.classList.contains("select-kit")) {
         event.preventDefault();
         target.querySelector(".select-kit-header").click();
       }
